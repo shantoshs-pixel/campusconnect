@@ -3,7 +3,7 @@
 // All data now comes from the real backend (Express + MongoDB)
 // ============================================================
 
-const API = 'http://localhost:5000/api';
+const API = 'https://campusconnect-su2g.onrender.com/api/auth/register';
 
 // ── Token helpers ─────────────────────────────────────────────
 const Auth = {
