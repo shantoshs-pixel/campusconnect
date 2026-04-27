@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mentors | Campus Connect+</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="bg-[#070D1B] text-white overflow-x-hidden">
+  <div class="fixed inset-0 pointer-events-none overflow-hidden">
+    <div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div>
+  </div>
+  <nav class="navbar" id="main-nav"></nav>
+
+  <main class="pt-20 pb-16 relative z-10">
+    <div class="page-header">
+      <div class="max-w-7xl mx-auto px-4">
+        <span class="section-badge bg-purple-500/10 border border-purple-500/20 text-purple-400">Mentors</span>
+        <h1 class="text-4xl md:text-5xl font-bold mb-3">Connect with Seniors</h1>
+        <p class="text-gray-400 text-lg max-w-xl mx-auto">Find mentors from your branch, view their expertise, and get guidance that actually moves you forward.</p>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-4 gap-6">
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+          <div class="glass-card rounded-3xl p-5 sticky top-24">
+            <h2 class="font-semibold mb-4 flex items-center gap-2"><i data-lucide="graduation-cap" class="w-4 h-4 text-purple-400"></i>Filters</h2>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-xs text-gray-400 mb-1.5 uppercase tracking-wider">Search</label>
+                <div class="relative">
+                  <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
+                  <input id="search-input" type="text" class="form-input pl-9 text-sm" placeholder="Name or expertise...">
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs text-gray-400 mb-1.5 uppercase tracking-wider">Branch</label>
+                <select id="branch-filter" class="form-input text-sm">
+                  <option value="">All branches</option>
+                  <option>CSE</option><option>ECE</option><option>IT</option><option>Mech</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs text-gray-400 mb-1.5 uppercase tracking-wider">Show</label>
+                <select id="show-filter" class="form-input text-sm">
+                  <option value="all">All mentors</option>
+                  <option value="connected">My connections</option>
+                  <option value="recommended">Recommended for me</option>
+                </select>
+              </div>
+              <div class="rounded-xl bg-white/5 border border-white/10 p-3">
+                <p class="text-xs font-medium text-white mb-0.5">Mentor fit</p>
+                <p class="text-xs text-gray-400" id="personalization-text">Sign in to see your branch mentors.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mentors grid -->
+        <div class="lg:col-span-3">
+          <div id="mentors-container" class="grid md:grid-cols-2 gap-5"></div>
+          <p id="no-results" class="hidden text-center text-gray-500 py-12">No mentors match your filters.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/app.js"></script>
+  <script>
+    renderNav('mentors');
+    const user = Auth.getUser();
+
+    if (user) {
+      document.getElementById('personalization-text').textContent = `Showing mentors for ${user.branch} and your interests`;
+    }
+
+    function isRecommended(m) {
+      if (!user) return false;
+      return m.branch === user.branch ||
+        (user.interests || []).some(i => m.tags.some(t => t.toLowerCase().includes(i.toLowerCase()) || i.toLowerCase().includes(t.toLowerCase())));
+    }
+
+    function openMentorModal(id) {
+      const u = Auth.getUser();
+      const m = MENTORS.find(x => x.id === id);
+      if (!m) return;
+      const connected = u && u.mentorConnections.includes(id);
+      UI.openModal(`
+        <div class="flex items-start gap-4 mb-5">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br ${m.avatarColor} flex items-center justify-center text-lg font-bold flex-shrink-0">${m.avatar}</div>
+          <div>
+            <h2 class="text-xl font-bold">${m.name}</h2>
+            <p class="text-gray-400 text-sm">${m.year} · ${m.branch}</p>
+            <div class="flex items-center gap-1 mt-1">
+              ${[1,2,3,4,5].map(s => `<span class="text-${s <= Math.round(m.rating) ? 'amber' : 'gray'}-400 text-sm">${s <= Math.round(m.rating) ? '★' : '☆'}</span>`).join('')}
+              <span class="text-xs text-gray-400 ml-1">${m.rating} · ${m.sessions} sessions</span>
+            </div>
+          </div>
+        </div>
+        <div class="mb-5">
+          <p class="text-sm font-medium text-purple-300 mb-2">${m.expertise}</p>
+          <div class="flex flex-wrap gap-2">${m.tags.map(t => `<span class="badge badge-purple text-xs">${t}</span>`).join('')}</div>
+        </div>
+        <div class="glass-card rounded-xl p-4 mb-5">
+          <p class="text-sm text-gray-300">This mentor can help you with <strong class="text-white">${m.expertise.toLowerCase()}</strong>. They've completed <strong class="text-white">${m.sessions} mentorship sessions</strong> and have a <strong class="text-white">${m.rating}/5.0</strong> rating from students.</p>
+        </div>
+        ${u ? `
+          <button onclick="toggleMentor('${m.id}')" class="${connected ? 'btn-ghost border border-emerald-500/30 text-emerald-400' : 'btn-primary'} w-full py-3 text-sm font-semibold">
+            ${connected ? '✓ Connected — Click to disconnect' : 'Connect with ' + m.name.split(' ')[0]}
+          </button>
+        ` : `<a href="/login" class="btn-primary block text-center py-3 text-sm">Sign in to connect</a>`}
+      `);
+    }
+
+    async function toggleMentor(id) {
+      const res = await apiFetch('/user/mentor/' + id, { method: 'POST' });
+      if (res.success) {
+        const u = Auth.getUser();
+        u.mentorConnections = res.mentorConnections;
+        localStorage.setItem('cc_user', JSON.stringify(u));
+        UI.toast(res.mentorConnections.includes(id) ? 'Connected!' : 'Disconnected', res.mentorConnections.includes(id) ? 'success' : 'info');
+        UI.closeModal();
+        renderMentors();
+      } else { UI.toast('Login to connect', 'error'); }
+    }
+
+    function renderMentors() {
+      const u = Auth.getUser();
+      const search = document.getElementById('search-input').value.toLowerCase();
+      const branch = document.getElementById('branch-filter').value;
+      const show = document.getElementById('show-filter').value;
+
+      let filtered = MENTORS.filter(m => {
+        if (search && !m.name.toLowerCase().includes(search) && !m.expertise.toLowerCase().includes(search) && !m.tags.join(' ').toLowerCase().includes(search)) return false;
+        if (branch && m.branch !== branch) return false;
+        if (show === 'connected' && u && !u.mentorConnections.includes(m.id)) return false;
+        if (show === 'recommended' && !isRecommended(m)) return false;
+        return true;
+      });
+
+      if (u) filtered.sort((a, b) => (isRecommended(b) ? 1 : 0) - (isRecommended(a) ? 1 : 0));
+
+      const container = document.getElementById('mentors-container');
+      const noResults = document.getElementById('no-results');
+      if (!filtered.length) { container.innerHTML = ''; noResults.classList.remove('hidden'); return; }
+      noResults.classList.add('hidden');
+
+      container.innerHTML = filtered.map(m => {
+        const connected = u && u.mentorConnections.includes(m.id);
+        const rec = isRecommended(m);
+        return `
+          <div class="glass-card item-card rounded-3xl p-5 cursor-pointer" onclick="openMentorModal('${m.id}')">
+            <div class="flex items-start justify-between gap-3 mb-4">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br ${m.avatarColor} flex items-center justify-center font-bold text-sm flex-shrink-0">${m.avatar}</div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="font-semibold">${m.name}</h3>
+                    ${rec ? '<span class="badge badge-purple" style="font-size:10px;padding:2px 7px;">Match</span>' : ''}
+                  </div>
+                  <p class="text-xs text-gray-500">${m.year} · ${m.branch}</p>
+                </div>
+              </div>
+              <button onclick="event.stopPropagation(); toggleMentor('${m.id}')" class="${connected ? 'btn-ghost border border-emerald-500/30 text-emerald-400 text-xs' : 'btn-primary text-xs'} px-4 py-2 flex-shrink-0">
+                ${connected ? '✓ Connected' : 'Connect'}
+              </button>
+            </div>
+            <p class="text-sm text-purple-300 font-medium mb-2">${m.expertise}</p>
+            <div class="flex flex-wrap gap-1.5 mb-3">${m.tags.map(t => `<span class="badge badge-purple" style="font-size:11px">${t}</span>`).join('')}</div>
+            <div class="flex items-center gap-2 text-xs text-gray-500">
+              <span class="text-amber-400">${'★'.repeat(Math.round(m.rating))}</span>
+              <span>${m.rating} rating · ${m.sessions} sessions</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    document.getElementById('search-input').addEventListener('input', renderMentors);
+    document.getElementById('branch-filter').addEventListener('change', renderMentors);
+    document.getElementById('show-filter').addEventListener('change', renderMentors);
+
+    loadAppData().then(() => { renderMentors(); lucide.createIcons(); });
+  </script>
+</body>
+</html>

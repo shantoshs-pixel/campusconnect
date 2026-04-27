@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In | Campus Connect+</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="bg-[#070D1B] text-white min-h-screen flex">
+  <div class="fixed inset-0 pointer-events-none overflow-hidden">
+    <div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div>
+  </div>
+
+  <!-- Left panel -->
+  <div class="hidden lg:flex flex-col justify-between w-[45%] auth-side p-12 relative z-10">
+    <a href="/" class="flex items-center gap-2">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+        <i data-lucide="graduation-cap" class="w-5 h-5 text-white"></i>
+      </div>
+      <span class="text-xl font-bold">Campus Connect<span class="text-blue-400">+</span></span>
+    </a>
+    <div>
+      <blockquote class="text-2xl font-medium text-white leading-relaxed mb-6">
+        "Found my coding club family through Campus Connect+. Now I'm part of the best tech community at VIT."
+      </blockquote>
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center font-bold text-sm">AK</div>
+        <div><p class="font-semibold text-sm">Aarav Kumar</p><p class="text-gray-400 text-xs">CSE, Year 3 · AI/ML Club Lead</p></div>
+      </div>
+    </div>
+    <div class="flex gap-6 text-sm text-gray-400">
+      <span>50K+ Students</span><span>200+ Clubs</span><span>500+ Events</span>
+    </div>
+  </div>
+
+  <!-- Right panel -->
+  <div class="flex-1 flex items-center justify-center p-6 relative z-10">
+    <div class="w-full max-w-md">
+      <a href="/" class="lg:hidden flex items-center gap-2 mb-8">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+          <i data-lucide="graduation-cap" class="w-4 h-4 text-white"></i>
+        </div>
+        <span class="font-bold">Campus Connect<span class="text-blue-400">+</span></span>
+      </a>
+
+      <div class="auth-card p-8">
+        <h1 class="text-2xl font-bold mb-1">Welcome back</h1>
+        <p class="text-gray-400 text-sm mb-8">Sign in to your Campus Connect+ account</p>
+
+        <div id="error-box" class="hidden mb-5 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-sm flex items-center gap-2">
+          <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
+          <span id="error-msg"></span>
+        </div>
+
+        <form id="login-form" class="space-y-5">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1.5">Email</label>
+            <div class="relative">
+              <i data-lucide="mail" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
+              <input type="email" name="email" class="form-input pl-11" placeholder="yourname@vitstudent.ac.in" required autocomplete="email">
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1.5">Password</label>
+            <div class="relative">
+              <i data-lucide="lock" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
+              <input type="password" name="password" id="pw-input" class="form-input pl-11 pr-11" placeholder="Enter your password" required autocomplete="current-password">
+              <button type="button" class="password-toggle" onclick="togglePw()">
+                <i data-lucide="eye" class="w-4 h-4" id="pw-eye"></i>
+              </button>
+            </div>
+          </div>
+          <button type="submit" id="submit-btn" class="btn-primary w-full py-3.5 text-sm font-semibold flex items-center justify-center gap-2">
+            <span id="btn-text">Sign In</span>
+            <span id="btn-spinner" class="hidden w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+          </button>
+        </form>
+
+        <div class="relative my-6">
+          <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-white/10"></div></div>
+          <div class="relative flex justify-center"><span class="bg-[#0F172A] px-3 text-xs text-gray-500">or</span></div>
+        </div>
+
+        <button onclick="demoLogin()" class="btn-ghost w-full py-3 text-sm flex items-center justify-center gap-2">
+          <i data-lucide="play-circle" class="w-4 h-4 text-blue-400"></i>
+          Try Demo Account
+        </button>
+
+        <p class="text-center text-sm text-gray-500 mt-6">
+          Don't have an account? <a href="/signup" class="text-blue-400 hover:text-blue-300 font-medium">Sign up free</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+  <script>
+    Auth.redirectIfLoggedIn();
+    lucide.createIcons();
+
+    function togglePw() {
+      const input = document.getElementById('pw-input');
+      const eye = document.getElementById('pw-eye');
+      input.type = input.type === 'password' ? 'text' : 'password';
+      eye.setAttribute('data-lucide', input.type === 'password' ? 'eye' : 'eye-off');
+      lucide.createIcons();
+    }
+
+    function showError(msg) {
+      const box = document.getElementById('error-box');
+      document.getElementById('error-msg').textContent = msg;
+      box.classList.remove('hidden');
+      box.classList.add('flex');
+    }
+
+    async function demoLogin() {
+      // Try to register demo account first (will fail silently if exists)
+      await apiFetch('/auth/register', {
+        method: 'POST',
+        body: { name: 'Ananya K.', email: 'ananya@vitstudent.ac.in', password: 'demo123', branch: 'CSE', year: '2', interests: ['AI/ML','Coding','Music'] }
+      });
+      // Then login
+      const res = await apiFetch('/auth/login', {
+        method: 'POST',
+        body: { email: 'ananya@vitstudent.ac.in', password: 'demo123' }
+      });
+      if (res.success) {
+        Auth.setSession(res.token, res.user);
+        window.location.href = '/dashboard';
+      } else {
+        showError('Demo login failed. Make sure the server is running.');
+      }
+    }
+
+    document.getElementById('login-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const data = new FormData(this);
+      const btnText = document.getElementById('btn-text');
+      const spinner = document.getElementById('btn-spinner');
+      const btn = document.getElementById('submit-btn');
+      btnText.textContent = 'Signing in...';
+      spinner.classList.remove('hidden');
+      btn.disabled = true;
+
+      const res = await apiFetch('/auth/login', {
+        method: 'POST',
+        body: { email: data.get('email'), password: data.get('password') }
+      });
+
+      if (res.success) {
+        Auth.setSession(res.token, res.user);
+        btnText.textContent = 'Redirecting...';
+        window.location.href = '/dashboard';
+      } else {
+        showError(res.message || 'Login failed');
+        btnText.textContent = 'Sign In';
+        spinner.classList.add('hidden');
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up | Campus Connect+</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="bg-[#070D1B] text-white min-h-screen flex">
+  <div class="fixed inset-0 pointer-events-none overflow-hidden">
+    <div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div>
+  </div>
+
+  <!-- Left panel -->
+  <div class="hidden lg:flex flex-col justify-between w-[42%] auth-side p-12 relative z-10">
+    <a href="/" class="flex items-center gap-2">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+        <i data-lucide="graduation-cap" class="w-5 h-5 text-white"></i>
+      </div>
+      <span class="text-xl font-bold">Campus Connect<span class="text-blue-400">+</span></span>
+    </a>
+    <div class="space-y-6">
+      <h2 class="text-3xl font-bold">Join 50,000+ VIT students</h2>
+      <div class="space-y-4">
+        <div class="flex items-start gap-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center mt-0.5 flex-shrink-0"><i data-lucide="check" class="w-4 h-4 text-blue-400"></i></div>
+          <div><p class="font-medium text-sm">Personalized event feed</p><p class="text-gray-400 text-xs">Based on your branch, year, and interests</p></div>
+        </div>
+        <div class="flex items-start gap-3">
+          <div class="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center mt-0.5 flex-shrink-0"><i data-lucide="check" class="w-4 h-4 text-indigo-400"></i></div>
+          <div><p class="font-medium text-sm">One-click club registration</p><p class="text-gray-400 text-xs">200+ clubs, all in one place</p></div>
+        </div>
+        <div class="flex items-start gap-3">
+          <div class="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center mt-0.5 flex-shrink-0"><i data-lucide="check" class="w-4 h-4 text-purple-400"></i></div>
+          <div><p class="font-medium text-sm">Senior mentorship network</p><p class="text-gray-400 text-xs">Connect with mentors from your exact branch</p></div>
+        </div>
+        <div class="flex items-start gap-3">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center mt-0.5 flex-shrink-0"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i></div>
+          <div><p class="font-medium text-sm">Free — always</p><p class="text-gray-400 text-xs">No credit card, no premium tier</p></div>
+        </div>
+      </div>
+    </div>
+    <p class="text-gray-600 text-sm">© 2024 Campus Connect+ for VIT Vellore</p>
+  </div>
+
+  <!-- Right panel -->
+  <div class="flex-1 flex items-center justify-center p-6 relative z-10">
+    <div class="w-full max-w-lg">
+      <a href="/" class="lg:hidden flex items-center gap-2 mb-6">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+          <i data-lucide="graduation-cap" class="w-4 h-4 text-white"></i>
+        </div>
+        <span class="font-bold">Campus Connect<span class="text-blue-400">+</span></span>
+      </a>
+
+      <!-- Step dots -->
+      <div class="flex items-center gap-2 mb-6">
+        <div id="step-dot-1" class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-xs font-bold">1</div>
+        <div id="step-line" class="flex-1 h-0.5 bg-white/10 transition-all duration-500"></div>
+        <div id="step-dot-2" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-gray-400">2</div>
+      </div>
+
+      <div class="auth-card p-8">
+        <div id="error-box" class="hidden mb-5 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-sm flex items-center gap-2">
+          <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
+          <span id="error-msg"></span>
+        </div>
+
+        <!-- Step 1: Account details -->
+        <div id="step-1">
+          <h1 class="text-2xl font-bold mb-1">Create your account</h1>
+          <p class="text-gray-400 text-sm mb-6">Join Campus Connect+ for free</p>
+          <form id="step1-form" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-1.5">Full Name</label>
+              <div class="relative">
+                <i data-lucide="user" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
+                <input type="text" name="name" class="form-input pl-11" placeholder="Your full name" required>
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-1.5">Email</label>
+              <div class="relative">
+                <i data-lucide="mail" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
+                <input type="email" name="email" class="form-input pl-11" placeholder="yourname@vitstudent.ac.in" required>
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-1.5">Password</label>
+              <div class="relative">
+                <i data-lucide="lock" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
+                <input type="password" name="password" id="pw-input" class="form-input pl-11 pr-11" placeholder="Min. 6 characters" required minlength="6">
+                <button type="button" class="password-toggle" onclick="togglePw()"><i data-lucide="eye" class="w-4 h-4" id="pw-eye"></i></button>
+              </div>
+            </div>
+            <button type="submit" class="btn-primary w-full py-3.5 text-sm font-semibold">Continue →</button>
+          </form>
+        </div>
+
+        <!-- Step 2: Profile setup -->
+        <div id="step-2" class="hidden">
+          <h1 class="text-2xl font-bold mb-1">Set up your profile</h1>
+          <p class="text-gray-400 text-sm mb-6">Help us personalize your experience</p>
+          <form id="step2-form" class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1.5">Branch</label>
+                <select name="branch" class="form-input">
+                  <option value="CSE">CSE</option><option value="ECE">ECE</option>
+                  <option value="IT">IT</option><option value="Mech">Mech</option>
+                  <option value="Civil">Civil</option><option value="EEE">EEE</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1.5">Year</label>
+                <select name="year" class="form-input">
+                  <option value="1">1st Year</option><option value="2">2nd Year</option>
+                  <option value="3">3rd Year</option><option value="4">4th Year</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">Your Interests</label>
+              <div id="interest-grid" class="grid grid-cols-3 gap-2"></div>
+            </div>
+            <button type="submit" id="submit-btn" class="btn-primary w-full py-3.5 text-sm font-semibold flex items-center justify-center gap-2">
+              <span id="btn-text">Create Account</span>
+              <span id="btn-spinner" class="hidden w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <p class="text-center text-sm text-gray-500 mt-5">
+        Already have an account? <a href="/login" class="text-blue-400 hover:text-blue-300 font-medium">Sign in</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+  <script>
+    Auth.redirectIfLoggedIn();
+    lucide.createIcons();
+
+    const INTERESTS = ['AI/ML','Coding','Design','Music','Sports','Photography','Robotics','Entrepreneurship','Career','Mentorship','Arts','Gaming'];
+    let selectedInterests = [];
+    let step1Data = {};
+
+    const grid = document.getElementById('interest-grid');
+    INTERESTS.forEach(interest => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'px-3 py-2 rounded-xl text-xs font-medium border border-white/10 bg-white/5 text-gray-300 hover:border-blue-500/40 hover:text-white transition-all';
+      btn.textContent = interest;
+      btn.onclick = () => {
+        const idx = selectedInterests.indexOf(interest);
+        if (idx === -1) {
+          selectedInterests.push(interest);
+          btn.className = 'px-3 py-2 rounded-xl text-xs font-medium border border-blue-500/50 bg-blue-500/15 text-blue-300 transition-all';
+        } else {
+          selectedInterests.splice(idx, 1);
+          btn.className = 'px-3 py-2 rounded-xl text-xs font-medium border border-white/10 bg-white/5 text-gray-300 hover:border-blue-500/40 hover:text-white transition-all';
+        }
+      };
+      grid.appendChild(btn);
+    });
+
+    function togglePw() {
+      const input = document.getElementById('pw-input');
+      const eye = document.getElementById('pw-eye');
+      input.type = input.type === 'password' ? 'text' : 'password';
+      eye.setAttribute('data-lucide', input.type === 'password' ? 'eye' : 'eye-off');
+      lucide.createIcons();
+    }
+
+    function showError(msg) {
+      const box = document.getElementById('error-box');
+      document.getElementById('error-msg').textContent = msg;
+      box.classList.remove('hidden'); box.classList.add('flex');
+    }
+
+    document.getElementById('step1-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const d = new FormData(this);
+      step1Data = { name: d.get('name'), email: d.get('email'), password: d.get('password') };
+      document.getElementById('step-1').classList.add('hidden');
+      document.getElementById('step-2').classList.remove('hidden');
+      document.getElementById('step-dot-2').className = 'w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-xs font-bold';
+      document.getElementById('step-line').className = 'flex-1 h-0.5 bg-blue-500 transition-all duration-500';
+      document.getElementById('error-box').classList.add('hidden');
+    });
+
+    document.getElementById('step2-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const d = new FormData(this);
+      const btnText = document.getElementById('btn-text');
+      const spinner = document.getElementById('btn-spinner');
+      const btn = document.getElementById('submit-btn');
+      btnText.textContent = 'Creating account...';
+      spinner.classList.remove('hidden');
+      btn.disabled = true;
+
+      const res = await apiFetch('/auth/register', {
+        method: 'POST',
+        body: {
+          name: step1Data.name,
+          email: step1Data.email,
+          password: step1Data.password,
+          branch: d.get('branch'),
+          year: d.get('year'),
+          interests: selectedInterests
+        }
+      });
+
+      if (res.success) {
+        Auth.setSession(res.token, res.user);
+        btnText.textContent = 'Done! Redirecting...';
+        window.location.href = '/dashboard';
+      } else {
+        showError(res.message || 'Registration failed');
+        document.getElementById('step-2').classList.add('hidden');
+        document.getElementById('step-1').classList.remove('hidden');
+        btnText.textContent = 'Create Account';
+        spinner.classList.add('hidden');
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

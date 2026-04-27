@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Events | Campus Connect+</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="bg-[#070D1B] text-white overflow-x-hidden">
+  <div class="fixed inset-0 pointer-events-none overflow-hidden">
+    <div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div>
+  </div>
+  <nav class="navbar" id="main-nav"></nav>
+
+  <main class="pt-20 pb-16 relative z-10">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="max-w-7xl mx-auto px-4">
+        <span class="section-badge bg-blue-500/10 border border-blue-500/20 text-blue-400">Events</span>
+        <h1 class="text-4xl md:text-5xl font-bold mb-3">Your Campus Activity Feed</h1>
+        <p class="text-gray-400 text-lg max-w-xl mx-auto">Find events that fit your schedule and match your interests. Register instantly.</p>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-4 gap-6">
+
+        <!-- Filters sidebar -->
+        <div class="lg:col-span-1">
+          <div class="glass-card rounded-3xl p-5 sticky top-24">
+            <h2 class="font-semibold mb-4 flex items-center gap-2"><i data-lucide="sliders-horizontal" class="w-4 h-4 text-blue-400"></i>Filters</h2>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-xs text-gray-400 mb-1.5 uppercase tracking-wider">Search</label>
+                <div class="relative">
+                  <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
+                  <input id="search-input" type="text" class="form-input pl-9 text-sm" placeholder="Search events...">
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs text-gray-400 mb-1.5 uppercase tracking-wider">Category</label>
+                <select id="cat-filter" class="form-input text-sm">
+                  <option value="">All categories</option>
+                  <option>AI/ML</option><option>Career</option><option>Design</option>
+                  <option>Music</option><option>Mentorship</option><option>Coding</option>
+                  <option>Tech</option><option>Arts</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs text-gray-400 mb-1.5 uppercase tracking-wider">Show</label>
+                <select id="show-filter" class="form-input text-sm">
+                  <option value="all">All events</option>
+                  <option value="registered">My RSVPs</option>
+                  <option value="recommended">Recommended for me</option>
+                </select>
+              </div>
+              <div id="personalization-box" class="rounded-xl bg-white/5 border border-white/10 p-3">
+                <p class="text-xs font-medium text-white mb-0.5">Personalized for you</p>
+                <p class="text-xs text-gray-400" id="personalization-text">Sign in to see personalized recommendations.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Events list -->
+        <div class="lg:col-span-3">
+          <div id="events-container" class="space-y-4"></div>
+          <p id="no-results" class="hidden text-center text-gray-500 py-12">No events match your filters.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/app.js"></script>
+  <script>
+    renderNav('events');
+    const user = Auth.getUser();
+
+    const colorMap = { blue: 'from-blue-500/20 to-indigo-500/20 text-blue-400', emerald: 'from-emerald-500/20 to-teal-500/20 text-emerald-400', purple: 'from-purple-500/20 to-pink-500/20 text-purple-400', pink: 'from-pink-500/20 to-rose-500/20 text-pink-400', amber: 'from-amber-500/20 to-orange-500/20 text-amber-400', cyan: 'from-cyan-500/20 to-teal-500/20 text-cyan-400', indigo: 'from-indigo-500/20 to-purple-500/20 text-indigo-400', rose: 'from-rose-500/20 to-pink-500/20 text-rose-400' };
+
+    if (user) {
+      document.getElementById('personalization-text').textContent = `Events ranked for ${user.branch} · ${(user.interests || []).join(', ') || 'Add interests in your profile'}`;
+    }
+
+    function isRecommended(ev) {
+      if (!user) return false;
+      return (ev.branch === 'All' || ev.branch === user.branch) &&
+        (user.interests || []).some(i => ev.category.toLowerCase().includes(i.toLowerCase()) || i.toLowerCase().includes(ev.category.toLowerCase()));
+    }
+
+    function openEventModal(id) {
+      const ev = EVENTS.find(e => e.id === id);
+      if (!ev) return;
+      const registered = user && user.registeredEvents.includes(id);
+      UI.openModal(`
+        <div class="flex items-start gap-4 mb-5">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br ${colorMap[ev.color]} flex items-center justify-center flex-shrink-0">
+            <i data-lucide="${ev.icon}" class="w-7 h-7"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold">${ev.title}</h2>
+            <p class="text-gray-400 text-sm">${ev.club} · ${ev.category}</p>
+          </div>
+        </div>
+        <div class="space-y-2 mb-6">
+          <div class="flex items-center gap-2 text-sm text-gray-300"><i data-lucide="calendar" class="w-4 h-4 text-gray-500"></i>${ev.day} · ${UI.formatHour(ev.start)} – ${UI.formatHour(ev.end)}</div>
+          <div class="flex items-center gap-2 text-sm text-gray-300"><i data-lucide="map-pin" class="w-4 h-4 text-gray-500"></i>${ev.location}</div>
+          <div class="flex items-center gap-2 text-sm text-gray-300"><i data-lucide="users" class="w-4 h-4 text-gray-500"></i>${ev.seats} seats remaining · ${ev.branch === 'All' ? 'Open to all' : ev.branch + ' branch'}</div>
+        </div>
+        ${user ? `
+          <button onclick="toggleEvent('${ev.id}')" class="${registered ? 'btn-ghost border border-emerald-500/30 text-emerald-400' : 'btn-primary'} w-full py-3 text-sm font-semibold">
+            ${registered ? '✓ Registered — Click to cancel' : 'RSVP for this Event'}
+          </button>
+        ` : `<a href="/login" class="btn-primary block text-center py-3 text-sm font-semibold">Sign in to RSVP</a>`}
+      `);
+    }
+
+    async function toggleEvent(id) {
+      const res = await apiFetch('/user/rsvp/' + id, { method: 'POST' });
+      if (res.success) {
+        const u = Auth.getUser();
+        u.registeredEvents = res.registeredEvents;
+        localStorage.setItem('cc_user', JSON.stringify(u));
+        UI.toast(res.registeredEvents.includes(id) ? 'RSVP confirmed!' : 'Registration cancelled', res.registeredEvents.includes(id) ? 'success' : 'info');
+        UI.closeModal();
+        renderEvents();
+      } else { UI.toast('Login to RSVP', 'error'); }
+    }
+
+    function renderEvents() {
+      const u = Auth.getUser();
+      const search = document.getElementById('search-input').value.toLowerCase();
+      const cat = document.getElementById('cat-filter').value;
+      const show = document.getElementById('show-filter').value;
+
+      let filtered = EVENTS.filter(ev => {
+        if (search && !ev.title.toLowerCase().includes(search) && !ev.club.toLowerCase().includes(search) && !ev.category.toLowerCase().includes(search)) return false;
+        if (cat && ev.category !== cat) return false;
+        if (show === 'registered' && u && !u.registeredEvents.includes(ev.id)) return false;
+        if (show === 'recommended' && !isRecommended(ev)) return false;
+        return true;
+      });
+
+      // Sort: recommended first
+      if (u) filtered.sort((a, b) => (isRecommended(b) ? 1 : 0) - (isRecommended(a) ? 1 : 0));
+
+      const container = document.getElementById('events-container');
+      const noResults = document.getElementById('no-results');
+
+      if (!filtered.length) {
+        container.innerHTML = '';
+        noResults.classList.remove('hidden');
+        return;
+      }
+      noResults.classList.add('hidden');
+
+      container.innerHTML = filtered.map(ev => {
+        const reg = u && u.registeredEvents.includes(ev.id);
+        const rec = isRecommended(ev);
+        return `
+          <div class="glass-card item-card rounded-3xl p-5 cursor-pointer" onclick="openEventModal('${ev.id}')">
+            <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+              <div class="flex items-start gap-4 flex-1">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br ${colorMap[ev.color]} flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="${ev.icon}" class="w-6 h-6"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex flex-wrap items-center gap-2 mb-1">
+                    <h3 class="font-semibold text-lg">${ev.title}</h3>
+                    ${rec ? '<span class="badge badge-green text-xs">Recommended</span>' : ''}
+                    ${reg ? '<span class="badge badge-blue text-xs">RSVPed</span>' : ''}
+                  </div>
+                  <p class="text-sm text-gray-400 mb-2">${ev.club} · ${ev.category}</p>
+                  <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+                    <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i>${ev.day} · ${UI.formatHour(ev.start)} – ${UI.formatHour(ev.end)}</span>
+                    <span class="flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i>${ev.location}</span>
+                    <span class="flex items-center gap-1"><i data-lucide="users" class="w-3 h-3"></i>${ev.seats} seats left</span>
+                  </div>
+                </div>
+              </div>
+              <button onclick="event.stopPropagation(); toggleEvent('${ev.id}')" class="${reg ? 'btn-ghost border border-emerald-500/30 text-emerald-400' : 'btn-primary'} px-5 py-2.5 text-sm font-semibold flex-shrink-0">
+                ${reg ? '✓ Registered' : 'RSVP'}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    document.getElementById('search-input').addEventListener('input', renderEvents);
+    document.getElementById('cat-filter').addEventListener('change', renderEvents);
+    document.getElementById('show-filter').addEventListener('change', renderEvents);
+
+    loadAppData().then(() => { renderEvents(); lucide.createIcons(); });
+  </script>
+</body>
+</html>

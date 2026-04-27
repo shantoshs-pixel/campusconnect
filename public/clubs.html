@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clubs | Campus Connect+</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="bg-[#070D1B] text-white overflow-x-hidden">
+  <div class="fixed inset-0 pointer-events-none overflow-hidden">
+    <div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div>
+  </div>
+  <nav class="navbar" id="main-nav"></nav>
+
+  <main class="pt-20 pb-16 relative z-10">
+    <div class="page-header">
+      <div class="max-w-7xl mx-auto px-4">
+        <span class="section-badge bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">Clubs</span>
+        <h1 class="text-4xl md:text-5xl font-bold mb-3">Find Your Campus Community</h1>
+        <p class="text-gray-400 text-lg max-w-xl mx-auto">Join clubs that match your interests. Your memberships sync across the whole app.</p>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-4 gap-6">
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+          <div class="glass-card rounded-3xl p-5 sticky top-24">
+            <h2 class="font-semibold mb-4 flex items-center gap-2"><i data-lucide="target" class="w-4 h-4 text-indigo-400"></i>Filters</h2>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-xs text-gray-400 mb-1.5 uppercase tracking-wider">Search</label>
+                <div class="relative">
+                  <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
+                  <input id="search-input" type="text" class="form-input pl-9 text-sm" placeholder="Search clubs...">
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs text-gray-400 mb-1.5 uppercase tracking-wider">Category</label>
+                <select id="cat-filter" class="form-input text-sm">
+                  <option value="">All categories</option>
+                  <option>Technical</option><option>Cultural</option><option>Creative</option><option>Professional</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs text-gray-400 mb-1.5 uppercase tracking-wider">Show</label>
+                <select id="show-filter" class="form-input text-sm">
+                  <option value="all">All clubs</option>
+                  <option value="joined">My clubs</option>
+                  <option value="recommended">Matches my interests</option>
+                </select>
+              </div>
+              <div class="rounded-xl bg-white/5 border border-white/10 p-3">
+                <p class="text-xs font-medium text-white mb-0.5">Interest sync</p>
+                <p class="text-xs text-gray-400" id="personalization-text">Sign in for personalized suggestions.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Clubs grid -->
+        <div class="lg:col-span-3">
+          <div id="clubs-container" class="grid md:grid-cols-2 gap-5"></div>
+          <p id="no-results" class="hidden text-center text-gray-500 py-12">No clubs match your filters.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/app.js"></script>
+  <script>
+    renderNav('clubs');
+    const user = Auth.getUser();
+
+    const colorMap = { blue: 'from-blue-500/20 to-indigo-500/20 text-blue-400', emerald: 'from-emerald-500/20 to-teal-500/20 text-emerald-400', purple: 'from-purple-500/20 to-pink-500/20 text-purple-400', pink: 'from-pink-500/20 to-rose-500/20 text-pink-400', amber: 'from-amber-500/20 to-orange-500/20 text-amber-400', cyan: 'from-cyan-500/20 to-teal-500/20 text-cyan-400', indigo: 'from-indigo-500/20 to-purple-500/20 text-indigo-400', rose: 'from-rose-500/20 to-pink-500/20 text-rose-400' };
+
+    if (user) {
+      document.getElementById('personalization-text').textContent = `Using your interests: ${(user.interests || []).join(', ') || 'Add interests in profile'}`;
+    }
+
+    function isRecommended(cl) {
+      if (!user || !user.interests || !user.interests.length) return false;
+      return user.interests.some(i =>
+        cl.name.toLowerCase().includes(i.toLowerCase()) ||
+        cl.category.toLowerCase().includes(i.toLowerCase()) ||
+        cl.desc.toLowerCase().includes(i.toLowerCase())
+      );
+    }
+
+    async function toggleClub(id) {
+      if (!user) { window.location.href = '/login'; return; }
+      const res = await apiFetch('/user/club/' + id, { method: 'POST' });
+      if (res.success) {
+        const u = Auth.getUser();
+        u.joinedClubs = res.joinedClubs;
+        localStorage.setItem('cc_user', JSON.stringify(u));
+        UI.toast(res.joinedClubs.includes(id) ? 'Joined club!' : 'Left club', res.joinedClubs.includes(id) ? 'success' : 'info');
+        renderClubs();
+      } else { UI.toast('Failed', 'error'); }
+    }
+
+    function renderClubs() {
+      const u = Auth.getUser();
+      const search = document.getElementById('search-input').value.toLowerCase();
+      const cat = document.getElementById('cat-filter').value;
+      const show = document.getElementById('show-filter').value;
+
+      let filtered = CLUBS.filter(cl => {
+        if (search && !cl.name.toLowerCase().includes(search) && !cl.desc.toLowerCase().includes(search) && !cl.category.toLowerCase().includes(search)) return false;
+        if (cat && cl.category !== cat) return false;
+        if (show === 'joined' && u && !u.joinedClubs.includes(cl.id)) return false;
+        if (show === 'recommended' && !isRecommended(cl)) return false;
+        return true;
+      });
+
+      if (u) filtered.sort((a, b) => (isRecommended(b) ? 1 : 0) - (isRecommended(a) ? 1 : 0));
+
+      const container = document.getElementById('clubs-container');
+      const noResults = document.getElementById('no-results');
+
+      if (!filtered.length) { container.innerHTML = ''; noResults.classList.remove('hidden'); return; }
+      noResults.classList.add('hidden');
+
+      container.innerHTML = filtered.map(cl => {
+        const joined = u && u.joinedClubs.includes(cl.id);
+        const rec = isRecommended(cl);
+        return `
+          <div class="glass-card item-card rounded-3xl p-5">
+            <div class="flex items-start justify-between gap-3 mb-3">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br ${colorMap[cl.color]} flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="${cl.icon}" class="w-6 h-6"></i>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="font-semibold">${cl.name}</h3>
+                    ${rec ? '<span class="badge badge-purple" style="font-size:10px;padding:2px 7px;">Match</span>' : ''}
+                  </div>
+                  <p class="text-xs text-gray-500">${cl.category} · ${cl.members} members</p>
+                </div>
+              </div>
+              <button onclick="toggleClub('${cl.id}')" class="${joined ? 'btn-ghost border border-emerald-500/30 text-emerald-400 text-xs' : 'btn-primary text-xs'} px-4 py-2 flex-shrink-0">
+                ${joined ? '✓ Joined' : 'Join'}
+              </button>
+            </div>
+            <p class="text-sm text-gray-400 leading-relaxed">${cl.desc}</p>
+            ${joined ? '<p class="text-xs text-emerald-400 mt-2 flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i>You\'re a member</p>' : ''}
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    document.getElementById('search-input').addEventListener('input', renderClubs);
+    document.getElementById('cat-filter').addEventListener('change', renderClubs);
+    document.getElementById('show-filter').addEventListener('change', renderClubs);
+
+    loadAppData().then(() => { renderClubs(); lucide.createIcons(); });
+  </script>
+</body>
+</html>
