@@ -205,7 +205,7 @@
       spinner.classList.remove('hidden');
       btn.disabled = true;
 
-      const res = await apiFetch('/auth/register', {
+      const res = await apiFetch('/auth/signup', {
         method: 'POST',
         body: {
           name: step1Data.name,
